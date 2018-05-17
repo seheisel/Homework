@@ -1,0 +1,132 @@
+---
+title: "MERS"
+author: "Sara Heisel"
+date: "5/16/2018"
+output:
+  html_document:
+    df_print: paged
+---
+Data cleanup
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning=FALSE, message = FALSE)
+```
+
+
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+this is language, name for this subset of data, argument to include or not
+##Cleaning Data
+```{r mers, include=FALSE} 
+mers <- read.csv("cases.csv")
+library(lubridate)
+library(ggplot2)
+mers$hospitalized[890]<-c('2015-02-20')
+mers <- mers[-471,]
+mers$onset2 <-ymd(mers$onset)
+mers$hospitalized2 <- ymd(mers$hospitalized)
+class(mers$onset2)
+
+day0 <- min(na.omit(mers$onset2))
+day0
+mers$epi.day <- as.numeric(mers$onset2 - day0)
+
+```
+##MERS Background
+put here background on Mers
+
+## MERS Plots
+
+You can also embed plots, for example:
+
+```{r plot, echo=FALSE}
+ggplot(data=mers) + 
+  geom_bar(mapping=aes(x=epi.day)) +
+  labs(x='Epidemic day', y='Case count', 
+title='Global count of MERS cases by date of symptom onset', 
+caption="Data from https://github.com/rambuat/MERS-Cases/blob/gh-pages/data/cases.csv")
+
+ggplot(data=mers) + 
+  geom_bar(mapping=aes(x=epi.day, fill = country)) +
+  labs(x='Epidemic day', y='Case count', title='Global count of 
+       MERS cases by date of symptom onset', caption="Data from https://
+       github.com/rambuat/MERS-Cases/blob/gh-pages/data/cases.csv")
+
+ggplot(data=mers) + 
+  geom_bar(mapping=aes(x=epi.day, fill = camel_contact)) +
+  labs(x='Epidemic day', y='Case count', title='Global count of 
+       MERS cases by date of symptom onset', caption="Data from https://
+       github.com/rambuat/MERS-Cases/blob/gh-pages/data/cases.csv")
+
+ggplot(data=mers) + 
+  geom_bar(mapping=aes(x=epi.day, fill = country), position="fill") +
+  labs(x='Epidemic day', y='Case count', title='Global count of 
+       MERS cases by date of symptom onset', caption="Data from https://
+       github.com/rambuat/MERS-Cases/blob/gh-pages/data/cases.csv")
+
+ggplot(data=mers) + 
+  geom_bar(mapping=aes(x=epi.day, fill = country), position="fill") +
+  labs(x='Epidemic day', y='Case count', title='Global count of 
+       MERS cases by date of symptom onset', caption="Data from https://
+       github.com/rambuat/MERS-Cases/blob/gh-pages/data/cases.csv") + coord_flip()
+
+ggplot(data=mers) + 
+  geom_bar(mapping=aes(x=epi.day, fill = country)) +
+  labs(x='Epidemic day', y='Case count', 
+title='Global count of MERS cases by date of symptom onset', caption="Data from https://github.com/rambuat/MERS-Cases/blob/gh-pages/data/cases.csv") + coord_polar()
+```
+##Infectious Period
+add some text here
+```{r infectious period, echo=FALSE}
+mers$infectious.period <- mers$hospitalized2-mers$onset2
+class(mers$infectious.period)
+
+
+mers$infectious.period <- as.numeric(mers$infectious.period, units="days")
+class(mers$infectious.period)
+
+
+ggplot(data=mers) +
+  geom_histogram(aes(x=infectious.period)) +
+  labs(x='Infecious period', y='Frequency', title='Distribution of calculated MERS infectious period',
+       caption = "Data from: https://github.com/rambaut/MERS-Cases/blob/gh-pages/data/cases.csv")
+
+
+mers$infectious.period2 <- ifelse(mers$infectious.period<0,0,mers$infectious.period)
+class(mers$infectious.period2)
+
+ggplot(data=mers) +
+  geom_histogram(aes(x=infectious.period2)) +
+  labs(x='Infecious period', y='Count', title='Distribution of calculated MERS infectious period',
+       caption = "Data from: https://github.com/rambaut/MERS-Cases/blob/gh-pages/data/cases.csv")
+
+
+ggplot(data=mers) +
+  geom_density(mapping=aes(x=infectious.period2)) +
+  labs(x='Infecious period', y='Frequency', title='Probability density for MERS infectious period\ (positive values only',
+       caption = "Data from: https://github.com/rambaut/MERS-Cases/blob/gh-pages/data/cases.csv")
+
+ 
+ggplot(data=mers) +
+  geom_area(stat='bin', mapping=aes(x=infectious.period2)) +
+  labs(x='Infecious period', y='Frequency', 
+       title='Area plot for MERS infectious period (positive values only',
+       caption = "Data from: https://github.com/rambaut/MERS-Cases/blob/gh-pages/data/cases.csv")
+
+
+ggplot(data=mers) +
+  geom_dotplot(stat='bin', mapping=aes(x=infectious.period2)) +
+  labs(x='Infecious period', y='Frequency', 
+       title='Area plot for MERS infectious period (positive values only',
+       caption = "Data from: https://github.com/rambaut/MERS-Cases/blob/gh-pages/data/cases.csv")
+
+ggplot(data=mers) +
+  geom_bar(aes(x=infectious.period2)) +
+  labs(x='Infecious period', y='Frequency', 
+       title='Area plot for MERS infectious period (positive values only',
+       caption = "Data from: https://github.com/rambaut/MERS-Cases/blob/gh-pages/data/cases.csv")
+```
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
